@@ -1,0 +1,8 @@
+/usr/local/include/qp_solver_collection/QpSolverCollection.h
+/usr/local/include/qp_solver_collection/QpSolverOptions.h
+/usr/local/lib/libQpSolverCollection.dylib
+/usr/local/lib/cmake/qp_solver_collection/qp_solver_collectionTargets.cmake
+/usr/local/lib/cmake/qp_solver_collection/qp_solver_collectionTargets-release.cmake
+/usr/local/lib/cmake/qp_solver_collection/qp_solver_collectionConfig.cmake
+/usr/local/lib/cmake/qp_solver_collection/qp_solver_collectionConfigVersion.cmake
+/usr/local/lib/cmake/qp_solver_collection/qp_solver_options.cmake

@@ -1,0 +1,13 @@
+/Users/william/external/QpSolverCollection/build/CMakeFiles/edit_cache.dir
+/Users/william/external/QpSolverCollection/build/CMakeFiles/rebuild_cache.dir
+/Users/william/external/QpSolverCollection/build/CMakeFiles/list_install_components.dir
+/Users/william/external/QpSolverCollection/build/CMakeFiles/install.dir
+/Users/william/external/QpSolverCollection/build/CMakeFiles/install/local.dir
+/Users/william/external/QpSolverCollection/build/CMakeFiles/install/strip.dir
+/Users/william/external/QpSolverCollection/build/src/CMakeFiles/QpSolverCollection.dir
+/Users/william/external/QpSolverCollection/build/src/CMakeFiles/edit_cache.dir
+/Users/william/external/QpSolverCollection/build/src/CMakeFiles/rebuild_cache.dir
+/Users/william/external/QpSolverCollection/build/src/CMakeFiles/list_install_components.dir
+/Users/william/external/QpSolverCollection/build/src/CMakeFiles/install.dir
+/Users/william/external/QpSolverCollection/build/src/CMakeFiles/install/local.dir
+/Users/william/external/QpSolverCollection/build/src/CMakeFiles/install/strip.dir

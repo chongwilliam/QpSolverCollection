@@ -10,6 +10,11 @@
 
 #include <qp_solver_collection/QpSolverOptions.h>
 
+#if ENABLE_PROXQP
+#  include <proxsuite/proxqp/status.hpp>
+#endif
+
+#define QP_SOLVER_COLLECTION_STANDALONE  // manual
 #ifdef QP_SOLVER_COLLECTION_STANDALONE
 #  include <iostream>
 #  define QSC_ERROR_STREAM(x) std::cerr << x << "\n"
@@ -549,8 +554,15 @@ public:
                                 const Eigen::Ref<const Eigen::VectorXd> & x_min,
                                 const Eigen::Ref<const Eigen::VectorXd> & x_max) override;
 
+  void setWarmStartSetting(proxsuite::proxqp::InitialGuessStatus setting);
+  proxsuite::proxqp::InitialGuessStatus getWarmStartSetting() {
+    return warm_start_setting_;
+  }
+
 protected:
   std::unique_ptr<proxsuite::proxqp::dense::QP<double>> proxqp_;
+  proxsuite::proxqp::InitialGuessStatus warm_start_setting_ =
+      proxsuite::proxqp::InitialGuessStatus::EQUALITY_CONSTRAINED_INITIAL_GUESS;
 };
 #endif
 

@@ -5,17 +5,69 @@ project(qp_solver_collection)
 option(DEFAULT_ENABLE_ALL "Enable all QP solvers by default" OFF)
 set(DEFAULT_ENABLE_VALUE ${DEFAULT_ENABLE_ALL})
 
-option(ENABLE_QLD "Enable QLD" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_QUADPROG "Enable QuadProg" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_LSSOL "Enable LSSOL" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_JRLQP "Enable JRLQP" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_QPOASES "Enable qpOASES" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_OSQP "Enable OSQP" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_NASOQ "Enable NASOQ" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_HPIPM "Enable HPIPM" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_PROXQP "Enable PROXQP" ${DEFAULT_ENABLE_VALUE})
-option(ENABLE_QPMAD "Enable QPMAD" ${DEFAULT_ENABLE_VALUE})
-option(USE_ROS2 "Use ROS2" OFF)
+option(ENABLE_QLD "Enable QLD" OFF)
+option(ENABLE_QUADPROG "Enable QuadProg" OFF)
+option(ENABLE_LSSOL "Enable LSSOL" OFF)
+option(ENABLE_JRLQP "Enable JRLQP" OFF)
+option(ENABLE_QPOASES "Enable qpOASES" OFF)
+option(ENABLE_OSQP "Enable OSQP" OFF) 
+option(ENABLE_NASOQ "Enable NASOQ" OFF)
+option(ENABLE_HPIPM "Enable HPIPM" OFF)
+option(ENABLE_PROXQP "Enable PROXQP" ON)
+option(ENABLE_QPMAD "Enable QPMAD" OFF)
+
+# Build/performance options
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE "Release" CACHE STRING "Build type" FORCE)
+endif()
+
+option(ENABLE_NATIVE_OPTIMIZATION "Enable CPU-specific optimizations like -march=native" ON)
+option(ENABLE_FAST_MATH "Enable aggressive floating-point optimizations" OFF)
+option(ENABLE_IPO "Enable interprocedural optimization / LTO in Release builds" ON)
+
+include(CheckCXXCompilerFlag)
+
+set(QSC_NATIVE_OPT_FLAG "")
+if(ENABLE_NATIVE_OPTIMIZATION)
+  foreach(_candidate_flag "-march=native" "-mcpu=native")
+    string(REPLACE "-" "_" _flag_var "${_candidate_flag}")
+    string(REPLACE "=" "_" _flag_var "${_flag_var}")
+    check_cxx_compiler_flag("${_candidate_flag}" "QSC_SUPPORTS${_flag_var}")
+    if(QSC_SUPPORTS${_flag_var})
+      set(QSC_NATIVE_OPT_FLAG "${_candidate_flag}")
+      break()
+    endif()
+  endforeach()
+endif()
+
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+  add_compile_options(
+    "$<$<CONFIG:Release>:-O3>"
+    "$<$<CONFIG:Release>:-DNDEBUG>"
+    "$<$<AND:$<CONFIG:Release>,$<BOOL:${QSC_NATIVE_OPT_FLAG}>>:${QSC_NATIVE_OPT_FLAG}>"
+    "$<$<AND:$<CONFIG:Release>,$<BOOL:${ENABLE_FAST_MATH}>>:-ffast-math>"
+  )
+elseif(MSVC)
+  add_compile_options(
+    "$<$<CONFIG:Release>:/O2>"
+    "$<$<CONFIG:Release>:/DNDEBUG>"
+    "$<$<AND:$<CONFIG:Release>,$<BOOL:${ENABLE_FAST_MATH}>>:/fp:fast>"
+  )
+endif()
+
+if(ENABLE_IPO)
+  include(CheckIPOSupported)
+  check_ipo_supported(RESULT ipo_supported OUTPUT ipo_output)
+  if(ipo_supported)
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE ON)
+  else()
+    message(STATUS "IPO/LTO not enabled: ${ipo_output}")
+  endif()
+endif()
+
+set(QPOASES_INCLUDE_DIR /usr/local/include)
+set(QPOASES_LIBRARY_DIR /usr/local/lib)
+# add_definitions(-DQP_SOLVER_COLLECTION_STANDALONE)
 
 option(FORCE_ALL_SOLVER_TEST "Test for all solvers regardless of options" OFF)
 mark_as_advanced(FORCE FORCE_ALL_SOLVER_TEST)
@@ -26,12 +78,12 @@ mark_as_advanced(FORCE SKIP_PRIVATE_SOLVER_TEST)
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
 if(NOT USE_ROS2)
-  option(BUILD_TESTING "Build test" ON)
+  option(BUILD_TESTING "Build test" OFF)
   if(BUILD_TESTING)
     enable_testing()
   endif()
   include(GNUInstallDirs)
-  # Place output artifacts all in the same directory to simplify running tests on Windows
+  # Place output artifacts all in the same directory to siplify running tests on Windows
   set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_BINDIR}")
   set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
   set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR}")
